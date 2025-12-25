@@ -17,16 +17,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $departments = Department::factory(5)->create();
+        // $departments = Department::factory(5)->create();
 
-        $positions = Position::factory(7)->create();
+        // $positions = Position::factory(7)->create();
 
         User::factory()->admin()->create([   
             'name' => 'Huy Admin',
-            'email' => 'huy244817@gmail.com',
-            'password' => 'huy4102004',
-            'department_id' => $departments->first()->id,
-            'position_id' => $positions->where('name', 'Trưởng Phòng')->first()->id,
+            'email' => 'phung@gmail.com',
+            'password' => '15032004',
+            'department_id' => 1,
+            'position_id' => 1,
         ]);
     }
 }

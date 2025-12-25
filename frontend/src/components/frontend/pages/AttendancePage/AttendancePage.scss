@@ -10,6 +10,7 @@ $text-muted: #6b7280;
 
 // --- 1. CẤU TRÚC LAYOUT (Sửa lỗi Sidebar và Header) ---
 .attendance-page-container {
+    padding: 20px; 
     background-color: $bg-body;
     min-height: 100vh;
     display: flex;
@@ -19,7 +20,6 @@ $text-muted: #6b7280;
         display: flex;      // QUAN TRỌNG: Sidebar bên trái, Content bên phải
         flex: 1;            // Chiếm toàn bộ phần còn lại của màn hình
         width: 100%;
-        padding: 20px 30px 30px 0; // Padding bên phải để Card không dính lề
     }
 
     .attendance-main-area {

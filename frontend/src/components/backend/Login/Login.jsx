@@ -38,6 +38,7 @@ const Login = () => {
                 name: result.name,
                 avatar: result.avatar, // Đã sửa lỗi chính tả từ result.avartar
                 department: result.department,
+                position_id: result.position_id,
                 position: result.position
             };
 
