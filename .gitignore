@@ -1,39 +1,33 @@
 # ============ BACKEND (Laravel) ============
-backend/.env
-backend/vendor/
-backend/node_modules/
-backend/storage/*.key
-backend/public/hot
-backend/public/storage
-backend/.phpunit.result.cache
-backend/nbproject/
+backend/.env              # File cấu hình (CÓ MẬT KHẨU!)
+backend/vendor/          # Composer dependencies (300MB+)
+backend/node_modules/    # Node modules backend
+backend/storage/*.key    # Encryption keys
+backend/public/hot       # Vite hot reload
+backend/public/storage   # Storage symlink
+backend/.phpunit.result.cache  # Cache testing
 
 # ============ FRONTEND (React/Vue) ============
-frontend/node_modules/
-frontend/.env
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
-frontend/dist/
-frontend/build/
-frontend/.vite/
-frontend/coverage/
-frontend/*.log
+frontend/node_modules/   # Node modules (200MB+)
+frontend/.env            # API keys frontend
+frontend/dist/           # Build output
+frontend/build/          # Build output
+frontend/.vite/          # Vite cache
+frontend/coverage/       # Test coverage
 
-# ============ IDE & SYSTEM ============
-.vscode/
-.idea/
-*.swp
+# ============ IDE ============
+.vscode/                 # VS Code settings
+.idea/                   # PHPStorm settings
+*.swp                    # Vim editor
 *.swo
-*~
-.DS_Store
-Thumbs.db
-*.sqlite
-*.sqlite-journal
+
+# ============ HỆ ĐIỀU HÀNH ============
+.DS_Store               # macOS finder
+Thumbs.db               # Windows thumbnails
+Desktop.ini
 
 # ============ LOGS ============
-*.log
+*.log                   # Application logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
