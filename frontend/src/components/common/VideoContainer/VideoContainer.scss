@@ -1,0 +1,77 @@
+.video-container {
+    position: relative; // Quan trọng để các con bên trong absolute được
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+    margin: 0 auto 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+.video-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); // THÊM: Hiệu ứng soi gương (người dùng thấy mình giống như soi gương)
+}
+
+.video-feed.active {
+    display: block;
+}
+
+.video-feed.inactive {
+    display: none;
+}
+
+// THÊM: Hiệu ứng khung quét mặt để người dùng biết đưa mặt vào đâu
+.scanning-overlay {
+    position: absolute;
+    
+    // Điều chỉnh tỉ lệ để tạo hình bầu dục đứng
+    width: 40%;    // Thu hẹp chiều ngang lại (ví dụ 40% thay vì 70%)
+    height: 80%;   // Tăng chiều cao lên (ví dụ 80%)
+    
+    // Căn giữa hình bầu dục đứng
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    
+    border: 2px dashed rgba(255, 255, 255, 0.6);
+    border-radius: 50% / 50%; // Tạo hình elip
+    
+    pointer-events: none;
+    
+    // Hiệu ứng làm tối vùng ngoài hình elip (masking)
+    // Cách dùng box-shadow lớn để tạo màn che:
+    box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4); 
+    
+    z-index: 10;
+}
+
+.video-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    background: #1a1a1a; // Chỉnh lại màu tối cho chuyên nghiệp
+}
+
+.video-placeholder svg {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+    fill: #fff; // Đổi màu icon sang trắng cho dễ nhìn trên nền tối
+}
+
+.video-placeholder p {
+    margin: 0;
+    font-size: 1rem;
+    color: #eee;
+}
+
+// ... các phần Keyframes và Responsive giữ nguyên như của bạn ...
