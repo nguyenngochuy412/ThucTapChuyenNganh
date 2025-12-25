@@ -1,34 +1,7 @@
-# ============ BACKEND (Laravel) ============
-backend/.env              # File cấu hình (CÓ MẬT KHẨU!)
-backend/vendor/          # Composer dependencies (300MB+)
-backend/node_modules/    # Node modules backend
-backend/storage/*.key    # Encryption keys
-backend/public/hot       # Vite hot reload
-backend/public/storage   # Storage symlink
-backend/.phpunit.result.cache  # Cache testing
-
-# ============ FRONTEND (React/Vue) ============
-frontend/node_modules/   # Node modules (200MB+)
-frontend/.env            # API keys frontend
-frontend/dist/           # Build output
-frontend/build/          # Build output
-frontend/.vite/          # Vite cache
-frontend/coverage/       # Test coverage
-
-# ============ IDE ============
-.vscode/                 # VS Code settings
-.idea/                   # PHPStorm settings
-*.swp                    # Vim editor
-*.swo
-
-# ============ HỆ ĐIỀU HÀNH ============
-.DS_Store               # macOS finder
-Thumbs.db               # Windows thumbnails
-Desktop.ini
-
-# ============ LOGS ============
-*.log                   # Application logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-laravel.log
+/vendor
+/node_modules
+/public/build
+/public/storage
+.env
+.env.backup
+/storage/*.key
