@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description');
             $table->decimal('salary', 15, 2)->default(0); // Lương cơ bản
+            $table->boolean('can_create_notification')->default(false); // Quyền tạo thông báo
             $table->boolean('is_active')->default(true);
             $table->softDeletes();
             $table->timestamps();

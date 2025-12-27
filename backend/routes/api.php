@@ -1,10 +1,9 @@
 <?php
 
 use App\Http\Controllers\admin\DashboardController;
-
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\client\AttendanceController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\client\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('authenticate', [AuthenticationController::class, 'authenticate']);
@@ -17,5 +16,10 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::post('check-out', [AttendanceController::class, 'checkOut']);
         Route::get('today/{userId}', [AttendanceController::class, 'getTodayAttendance']);
         Route::post('location/validate', [AttendanceController::class, 'validateLocation']);
+    });
+
+    Route::prefix('notifications')->group(function () {
+        Route::get('show', [NotificationController::class, 'index']);
+        Route::post('create', [NotificationController::class, 'store']);
     });
 });

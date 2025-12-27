@@ -18,7 +18,9 @@ const AttendancePage = () => {
     const { 
         checkIn, 
         checkOut, 
-        isLoading: isAttendanceLoading 
+        isLoading: isAttendanceLoading,
+        todayAttendance,
+        loadTodayAttendance
     } = useAttendance();
 
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -26,14 +28,26 @@ const AttendancePage = () => {
     const [showResult, setShowResult] = useState(false);
     const [resultData, setResultData] = useState(null);
 
+    // Lấy bản ghi đầu tiên trong mảng data trả về từ Laravel
+    const todayRecord = todayAttendance && todayAttendance.length > 0 ? todayAttendance[0] : null;
+
     useEffect(() => {
-       const interval = setInterval(() => setCurrentTime(new Date()), 1000);
+        const interval = setInterval(() => setCurrentTime(new Date()), 1000);
         location.getCurrentLocation().catch(() => toast.error("Không thể xác định vị trí!"));
+        // Gọi API lấy dữ liệu đã điểm danh hôm nay
+        loadTodayAttendance();
         return () => {
             clearInterval(interval);
             camera.stop();
         };
     }, []);
+
+    // Hàm hỗ trợ hiển thị giờ đẹp (HH:mm)
+    const formatDisplayTime = (timeString) => {
+        if (!timeString) return '--:--';
+        // Nếu timeString là "04:07:59", ta lấy "04:07"
+        return timeString.substring(0, 5);
+    };
 
     // Hàm khi bấm nút Check-in hoặc Check-out chính
     const handleStartAction = async (mode) => {
@@ -148,11 +162,11 @@ const AttendancePage = () => {
                                         <h3>Chào mừng bạn quay lại!</h3>
                                         <p>Vui lòng chọn hình thức điểm danh</p>
                                         <div className="button-group">
-                                            <button className="btn-action in" onClick={() => handleStartAction('checkin')}>
+                                            <button className="btn-action in" onClick={() => handleStartAction('checkin')} disabled={!!todayRecord?.check_in}>
                                                 <div className="icon"><i className="fas fa-sign-in-alt"></i></div>
                                                 <span>Vào Ca (Check-in)</span>
                                             </button>
-                                            <button className="btn-action out" onClick={() => handleStartAction('checkout')}>
+                                            <button className="btn-action out" onClick={() => handleStartAction('checkout')} disabled={!!todayRecord?.check_out}>
                                                 <div className="icon"><i className="fas fa-sign-out-alt"></i></div>
                                                 <span>Tan Ca (Check-out)</span>
                                             </button>
@@ -191,11 +205,25 @@ const AttendancePage = () => {
                                     </div>
                                 )}
                             </div>
+
+                            {/* XUẤT DỮ LIỆU ĐÃ ATTENDANCE TODAY TẠI ĐÂY */}
+                            <div className="today-status-bar">
+                                <div className={`status-item ${todayRecord?.check_in ? 'completed' : ''}`}>
+                                    <i className="fas fa-sign-in-alt"></i> Vào ca: 
+                                    <strong> {formatDisplayTime(todayRecord?.check_in)}</strong>
+                                </div>
+                                <div className={`status-item ${todayRecord?.check_out ? 'completed' : ''}`}>
+                                    <i className="fas fa-sign-out-alt"></i> Tan ca: 
+                                    <strong> {formatDisplayTime(todayRecord?.check_out)}</strong>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </main>
             </div>
         </div>
+
+        
     );
 };
 

@@ -14,7 +14,9 @@ class Position extends Model
     protected $fillable = [
         'name',
         'description',
-        'is_active'
+        'is_active',
+        'salary',
+        'can_create_notification',
     ];
 
     protected $casts = [

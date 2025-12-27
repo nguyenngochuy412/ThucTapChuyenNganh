@@ -19,14 +19,14 @@ class DatabaseSeeder extends Seeder
     {
         // $departments = Department::factory(5)->create();
 
-        // $positions = Position::factory(7)->create();
+        //  $positions = Position::factory(7)->create();
 
         User::factory()->admin()->create([   
             'name' => 'Huy Admin',
-            'email' => 'phung@gmail.com',
-            'password' => '15032004',
+            'email' => 'huy244@gmail.com',
+            'password' => '4102004',
             'department_id' => 1,
-            'position_id' => 1,
+            'position_id' => 5,
         ]);
     }
 }

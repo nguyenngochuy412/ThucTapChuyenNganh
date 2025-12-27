@@ -39,8 +39,8 @@ class AuthenticationController extends Controller
                     'id' => Auth::user()->id,
                     'name' => Auth::user()->name,
                     'department' => Department::find(Auth::user()->department_id)->name,
-                    'position_id' => Auth::user()->position_id,
                     'position' => Position::find(Auth::user()->position_id)->name,
+                    'can_create_notification' => Position::find(Auth::user()->position_id)->can_create_notification,
                 ]);
 
             } else {

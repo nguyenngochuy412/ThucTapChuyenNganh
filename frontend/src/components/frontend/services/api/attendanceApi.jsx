@@ -1,11 +1,8 @@
 import axios from 'axios';
 
-// 1. Thay đổi URL cho đúng với Laravel (thường là 8000)
-const BASE_URL = 'http://localhost:8000/api'; 
-
 // 2. Cấu hình instance axios để tự động lấy token từ localStorage
 const api = axios.create({
-    baseURL: BASE_URL,
+    baseURL: import.meta.env.VITE_API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'

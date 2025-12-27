@@ -8,25 +8,26 @@ $bg-body: #f3f4f6;
 $text-main: #1f2937;
 $text-muted: #6b7280;
 
-// --- 1. CẤU TRÚC LAYOUT (Sửa lỗi Sidebar và Header) ---
+// --- 1. CẤU TRÚC LAYOUT ---
 .attendance-page-container {
     padding: 20px; 
     background-color: $bg-body;
     min-height: 100vh;
     display: flex;
-    flex-direction: column; // Header ở trên cùng
+    flex-direction: column;
 
     .main-content-layout {
-        display: flex;      // QUAN TRỌNG: Sidebar bên trái, Content bên phải
-        flex: 1;            // Chiếm toàn bộ phần còn lại của màn hình
+        display: flex;
+        flex: 1;
         width: 100%;
     }
 
     .attendance-main-area {
-        flex: 1;            // Tự động giãn rộng ra phần còn lại sau Sidebar
+        flex: 1;
         display: flex;
-        justify-content: center; // Căn giữa Card theo chiều ngang
-        align-items: flex-start; // Đẩy Card lên phía trên một chút
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 20px;
     }
 }
 
@@ -51,18 +52,47 @@ $text-muted: #6b7280;
         .title-section {
             h1 { font-size: 1.8rem; margin: 0; font-weight: 700; color: white; }
             p { opacity: 0.8; font-size: 0.9rem; margin: 5px 0 0 0; }
+
+            // --- TÍCH HỢP THANH TRẠNG THÁI HÔM NAY ---
+            .today-status-bar {
+                display: flex;
+                gap: 12px;
+                margin-top: 15px;
+
+                .status-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 6px 14px;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 50px;
+                    font-size: 0.8rem;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    color: rgba(255, 255, 255, 0.7);
+
+                    i { font-size: 0.75rem; }
+                    strong { color: white; }
+
+                    &.completed {
+                        background: rgba($success, 0.2);
+                        border-color: rgba($success, 0.3);
+                        color: #fff;
+                        i { color: $success; }
+                    }
+                }
+            }
         }
 
         .digital-clock {
             text-align: right;
-            .time { font-size: 2.2rem; font-weight: 800; font-family: 'Monaco', monospace; line-height: 1; }
+            .time { font-size: 2.2rem; font-weight: 800; font-family: 'Monaco', monospace; line-height: 1; color: #fff; }
             .date { font-size: 0.9rem; opacity: 0.7; margin-top: 5px; }
         }
     }
 
     .card-body {
         display: grid;
-        grid-template-columns: 1.2fr 1fr; // Chia 2 cột: Camera và Action
+        grid-template-columns: 1.2fr 1fr;
         gap: 40px;
         padding: 40px;
 
@@ -118,11 +148,11 @@ $text-muted: #6b7280;
             gap: 20px;
 
             .btn-action {
-                border: none;
+                border: 1px solid #f1f5f9;
                 border-radius: 20px;
                 padding: 25px 15px;
                 cursor: pointer;
-                transition: all 0.3s;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 background: #f8fafc;
                 display: flex;
                 flex-direction: column;
@@ -136,17 +166,38 @@ $text-muted: #6b7280;
                     align-items: center;
                     justify-content: center;
                     font-size: 1.3rem;
+                    transition: 0.3s;
                 }
 
-                span { font-weight: 600; color: $text-main; font-size: 0.9rem; }
+                span { font-weight: 600; color: $text-main; font-size: 0.9rem; text-align: center; }
 
                 &.in {
-                    &:hover { background: #ecfdf5; transform: translateY(-5px); }
+                    &:hover:not(:disabled) { background: #ecfdf5; transform: translateY(-5px); border-color: $success; }
                     .icon { background: $success; color: white; }
                 }
                 &.out {
-                    &:hover { background: #eff6ff; transform: translateY(-5px); }
+                    &:hover:not(:disabled) { background: #eff6ff; transform: translateY(-5px); border-color: $primary; }
                     .icon { background: $primary; color: white; }
+                }
+
+                // --- TRẠNG THÁI DISABLED (ĐÃ ĐIỂM DANH) ---
+                &:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                    background: #f1f5f9;
+                    border: 1px dashed #cbd5e1;
+
+                    .icon {
+                        background: #cbd5e1 !important;
+                        color: #64748b !important;
+                    }
+
+                    span {
+                        color: #94a3b8;
+                        font-style: italic;
+                    }
+                    
+                    &:hover { transform: none; }
                 }
             }
         }
@@ -171,7 +222,12 @@ $text-muted: #6b7280;
             transition: all 0.3s;
 
             &:hover:not(:disabled) { transform: scale(1.02); filter: brightness(1.1); }
-            &:disabled { background: #94a3b8; box-shadow: none; cursor: not-allowed; }
+            &:disabled { 
+                background: #94a3b8; 
+                box-shadow: none; 
+                cursor: not-allowed; 
+                transform: none;
+            }
         }
 
         .btn-cancel-flat {
@@ -209,4 +265,18 @@ $text-muted: #6b7280;
     0% { transform: scale(0.9); opacity: 0; }
     70% { transform: scale(1.03); }
     100% { transform: scale(1); opacity: 1; }
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }

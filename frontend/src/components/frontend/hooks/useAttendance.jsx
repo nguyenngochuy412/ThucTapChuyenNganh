@@ -42,8 +42,11 @@ export const useAttendance = () => {
         if (!user) return;
         try {
             const res = await attendanceApi.getTodayAttendance(user.id);
-            setTodayAttendance(res.data || []);
-        } catch (err) { console.error(err); }
+            // Lưu ý: res.data là object của Axios, res.data.data là mảng từ Laravel
+            setTodayAttendance(res.data || []); 
+        } catch (err) { 
+            console.error(err); 
+        }
     };
 
     return {

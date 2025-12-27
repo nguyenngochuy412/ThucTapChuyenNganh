@@ -37,8 +37,8 @@ const Login = () => {
                 id: result.id,
                 name: result.name,
                 avatar: result.avatar, // Đã sửa lỗi chính tả từ result.avartar
+                can_create_notification: result.can_create_notification,
                 department: result.department,
-                position_id: result.position_id,
                 position: result.position
             };
 

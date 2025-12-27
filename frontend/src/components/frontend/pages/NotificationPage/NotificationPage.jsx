@@ -1,81 +1,57 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import Header from '../../main/Header';
 import SideBar from '../../main/SideBar';
 import './NotificationPage.scss';
 import { useState } from 'react';
 import { AuthContext } from '../../../backend/context/Auth';
+import { useNotifications } from '../../hooks/useNotifications';
 
 const NotificationPage = () => {
     const { user } = useContext(AuthContext);
-    const idUseNotifications = [5, 4]; // IDs của các chức danh là Trưởng phòng
-    const [filter, setFilter] = useState('all'); // 'all' | 'unread'
     const [showCreateModal, setShowCreateModal] = useState(false);
 
-    // State cho form tạo thông báo mới
-    const [newNotif, setNewNotif] = useState({ title: '', content: '', type: 'info' });
+    const [newNotif, setNewNotif] = useState({
+        title: '',
+        type: 'info',
+        content: ''
+    })
 
-    const [notifications, setNotifications] = useState([
-        {
-            id: 1,
-            title: "Check-in thành công",
-            content: "Bạn đã hoàn thành điểm danh vào ca lúc 08:00 AM.",
-            time: "10 phút trước",
-            type: "success",
-            isRead: false
-        },
-        {
-            id: 2,
-            title: "Nhắc nhở cập nhật thông tin",
-            content: "Vui lòng bổ sung ảnh đại diện mới để hệ thống nhận diện khuôn mặt chính xác hơn.",
-            time: "2 giờ trước",
-            type: "warning",
-            isRead: false
-        },
-        {
-            id: 3,
-            title: "Phê duyệt đơn nghỉ phép",
-            content: "Đơn nghỉ phép ngày 28/12 của bạn đã được quản lý phê duyệt.",
-            time: "1 ngày trước",
-            type: "info",
-            isRead: true
-        },
-        {
-            id: 4,
-            title: "Cảnh báo vị trí",
-            content: "Phát hiện nỗ lực điểm danh ngoài phạm vi cho phép tại chi nhánh Quận 1.",
-            time: "2 ngày trước",
-            type: "danger",
-            isRead: true
-        }
-    ]);
+    const {
+        userNotifications,
+        setUserNotifications,
+        loadUserNotifications,
+        createNotification
+    } = useNotifications();
+
+    useEffect(() => {
+        //fetch dữ liệu thông báo từ API
+        loadUserNotifications();
+
+        if (user?.department) {
+        // Tên kênh phải khớp hoàn toàn: department-notifications.ID
+        const channelName = `department-notifications.${user.department_id}`;
+        
+        window.Echo.channel(channelName)
+            .listen('.notification.new', (data) => { // Có dấu chấm vì dùng broadcastAs
+                console.log("Đã nhận thông báo mới realtime:", data);
+                
+                // data.notification chính là biến $notification bạn gửi từ Laravel
+                setUserNotifications(prev => [data.notification, ...prev]);
+            });
+            
+        return () => {
+            window.Echo.leaveChannel(channelName);
+        };
+    }
+    },[]);
+
+    const notificationsList = Array.isArray(userNotifications) ? userNotifications : [];
 
     const handleCreateNotif = (e) => {
         e.preventDefault();
-        const createdNotif = {
-            id: Date.now(),
-            ...newNotif,
-            time: "Vừa xong",
-            isRead: false
-        };
-        setNotifications([createdNotif, ...notifications]);
+        createNotification(newNotif);
         setShowCreateModal(false);
-        setNewNotif({ title: '', content: '', type: 'info' });
-        toast.success("Đã gửi thông báo mới!");
     };
-
-    const handleMarkAsRead = (id) => {
-        setNotifications(prev => 
-            prev.map(n => n.id === id ? { ...n, isRead: true } : n)
-        );
-    };
-
-    const handleMarkAllRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-    };
-
-    const filteredNotifs = filter === 'unread' 
-        ? notifications.filter(n => !n.isRead) 
-        : notifications;
 
     return (
         <div className="notification-page-container">
@@ -87,70 +63,58 @@ const NotificationPage = () => {
                         <div className="card-header">
                             <div className="title-section">
                                 <h1>Thông Báo</h1>
-                                <p>Cập nhật những tin tức và cảnh báo mới nhất từ hệ thống</p>
+                                <p>Cập nhật những tin tức mới nhất từ hệ thống</p>
                             </div>
                             <div className="header-actions">
-                                {/* CHỈ TRƯỞNG PHÒNG MỚI THẤY NÚT NÀY */}
-                                
-                                {idUseNotifications.includes(user?.position_id) && (
+                                {user?.can_create_notification && (
                                     <button className="btn-create-notif" onClick={() => setShowCreateModal(true)}>
                                         <i className="fas fa-plus-circle"></i> Tạo thông báo
                                     </button>
                                 )}
-                                <button className="btn-mark-all" onClick={() => setNotifications(notifications.map(n => ({...n, isRead: true})))}>
-                                    Đánh dấu tất cả đã đọc
-                                </button>
                             </div>
                         </div>
 
+                        {/* Thanh tab tối giản - Chỉ để hiển thị tổng số */}
                         <div className="filter-tabs">
-                            <button 
-                                className={`tab ${filter === 'all' ? 'active' : ''}`}
-                                onClick={() => setFilter('all')}
-                            >
-                                Tất cả
-                            </button>
-                            <button 
-                                className={`tab ${filter === 'unread' ? 'active' : ''}`}
-                                onClick={() => setFilter('unread')}
-                            >
-                                Chưa đọc
-                                {notifications.filter(n => !n.isRead).length > 0 && (
-                                    <span className="count-badge">
-                                        {notifications.filter(n => !n.isRead).length}
-                                    </span>
-                                )}
+                            <button className="tab active">
+                                Tất cả thông báo ({notificationsList.length})
                             </button>
                         </div>
 
                         <div className="notification-list">
-                            {filteredNotifs.length > 0 ? (
-                                filteredNotifs.map((notif) => (
-                                    <div 
-                                        key={notif.id} 
-                                        className={`notif-item ${notif.isRead ? 'read' : 'unread'} ${notif.type}`}
-                                        onClick={() => handleMarkAsRead(notif.id)}
-                                    >
+                            {notificationsList.length > 0 ? (
+                                notificationsList.map((notif) => (
+                                    <div key={notif.id} className={`notif-item ${notif.type || 'info'}`}>
                                         <div className="notif-icon">
                                             {notif.type === 'success' && <i className="fas fa-check-circle"></i>}
                                             {notif.type === 'warning' && <i className="fas fa-exclamation-triangle"></i>}
-                                            {notif.type === 'info' && <i className="fas fa-info-circle"></i>}
                                             {notif.type === 'danger' && <i className="fas fa-radiation"></i>}
+                                            {(notif.type === 'info' || !notif.type) && <i className="fas fa-info-circle"></i>}
                                         </div>
                                         <div className="notif-content">
                                             <div className="notif-top">
-                                                <h4>{notif.title}</h4>
-                                                <span className="time">{notif.time}</span>
+                                                <h4>
+                                                    {notif.title}
+                                                    <span className="sender-name">
+                                                        • {notif.sender?.name === user?.name ? (
+                                                            <span className="me-badge">Tôi</span>
+                                                        ) : (
+                                                            notif.sender?.name || 'Hệ thống'
+                                                        )}
+                                                    </span>
+                                                </h4>
+                                                <span className="time">
+                                                    {notif.created_at ? new Date(notif.created_at).toLocaleString('vi-VN') : ''}
+                                                </span>
                                             </div>
                                             <p>{notif.content}</p>
                                         </div>
-                                        {!notif.isRead && <div className="unread-dot"></div>}
                                     </div>
                                 ))
                             ) : (
                                 <div className="empty-state">
                                     <div className="empty-icon">🔔</div>
-                                    <p>Không có thông báo nào!</p>
+                                    <p>Hiện tại chưa có thông báo nào!</p>
                                 </div>
                             )}
                         </div>
