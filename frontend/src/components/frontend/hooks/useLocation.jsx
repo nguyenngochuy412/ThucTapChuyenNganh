@@ -41,5 +41,16 @@ export const useLocation = () => {
         });
     }, []);
 
-    return { currentLocation, address, isLoading, error, getCurrentLocation };
+    const getAddressFromCoords = useCallback(async (coordsString) => {
+        if (!coordsString || coordsString === 'N/A') return 'Không có dữ liệu vị trí';
+        try {
+            const [lat, lon] = coordsString.split(',');
+            const info = await locationApi.reverseGeocode(lat.trim(), lon.trim());
+            return info.address;
+        } catch (err) {
+            return 'Lỗi xác định địa chỉ';
+        }
+    }, []);
+
+    return { currentLocation, address, isLoading, error, getCurrentLocation, getAddressFromCoords };
 };

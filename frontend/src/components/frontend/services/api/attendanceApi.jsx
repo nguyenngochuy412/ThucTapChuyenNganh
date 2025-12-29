@@ -1,22 +1,4 @@
-import axios from 'axios';
-
-// 2. Cấu hình instance axios để tự động lấy token từ localStorage
-const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-});
-
-// Thêm Interceptor để mỗi lần gọi API đều tự động đính kèm Token Sanctum
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token'); // Đảm bảo lúc đăng nhập bạn đã lưu token vào đây
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+import api from './api';
 
 const attendanceApi = {
     // Hàm gửi dữ liệu check-in
@@ -42,9 +24,9 @@ const attendanceApi = {
     },
 
     // Lấy lịch sử điểm danh hôm nay
-    getTodayAttendance: async (userId) => {
+    getTodayAttendance: async () => {
         try {
-            const response = await api.get(`/attendance/today/${userId}`);
+            const response = await api.get(`/attendance/today`);
             return response.data; // Kết quả trả về { data: [...] }
         } catch (error) {
             throw error.response?.data || new Error('Lỗi khi lấy dữ liệu hôm nay');

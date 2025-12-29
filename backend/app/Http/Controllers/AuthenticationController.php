@@ -30,7 +30,7 @@ class AuthenticationController extends Controller
             ];
 
             if(Auth::attempt($credential)) {
-                $user = User::find(Auth::id());
+                $user = User::with(['department', 'position'])->find(Auth::id());
                 $token = $user->createToken('token')->plainTextToken;
 
                 return response()->json([
@@ -38,6 +38,9 @@ class AuthenticationController extends Controller
                     'token' => $token,
                     'id' => Auth::user()->id,
                     'name' => Auth::user()->name,
+                    'role' => $user->role,
+                    'avatar' => $user->avatar,
+                    'department_id' => Auth::user()->department_id,
                     'department' => Department::find(Auth::user()->department_id)->name,
                     'position' => Position::find(Auth::user()->position_id)->name,
                     'can_create_notification' => Position::find(Auth::user()->position_id)->can_create_notification,
@@ -53,12 +56,21 @@ class AuthenticationController extends Controller
     }
 
     public function logout(Request $request) {
-        $user = User::find(Auth::user()->id);
-        $user->token()->delete();
+        try {
+            // Trong Sanctum, $request->user() đã chính là user đang login
+            // Chúng ta gọi currentAccessToken() để xóa chính xác token đang dùng
+            $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Logout successful'
-        ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Đăng xuất thành công (Token đã bị hủy)'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

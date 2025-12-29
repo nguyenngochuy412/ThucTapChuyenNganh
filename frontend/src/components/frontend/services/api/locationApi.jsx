@@ -1,21 +1,4 @@
-import axios from 'axios';
-
-// Tạo một instance axios để cấu hình chung cho các request gửi về Laravel
-const laravelApi = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    }
-});
-
-// Tự động đính kèm token vào mỗi request nếu có
-laravelApi.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+import api from './api';
 
 const locationApi = {
     // 1. Lấy địa chỉ từ tọa độ (Giữ nguyên - Phục vụ hiển thị UI)

@@ -26,7 +26,7 @@ class NotificationController extends Controller
     }
 
     // 2. Trưởng phòng tạo thông báo mới
-    public function store(Request $request)
+    public function createNotifications(Request $request)
     {
         $user = Auth::user();
 

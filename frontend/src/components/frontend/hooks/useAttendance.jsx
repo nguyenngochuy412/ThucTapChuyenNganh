@@ -1,12 +1,14 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../backend/context/Auth';
 import attendanceApi from '../services/api/attendanceApi';
+import { set } from 'react-hook-form';
 
 export const useAttendance = () => {
     const { user } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false);
     const [todayAttendance, setTodayAttendance] = useState([]);
+    const [historyAttendance, setHistoryAttendance] = useState([]);
 
     const handleAttendance = async (type, attendanceParams) => {
         try {
@@ -41,17 +43,42 @@ export const useAttendance = () => {
     const loadTodayAttendance = async () => {
         if (!user) return;
         try {
-            const res = await attendanceApi.getTodayAttendance(user.id);
+            const res = await attendanceApi.getTodayAttendance();
             // Lưu ý: res.data là object của Axios, res.data.data là mảng từ Laravel
-            setTodayAttendance(res.data || []); 
+            const record = res.data;
+            if (record && typeof record === 'object') {
+                // Nếu có dữ liệu, bọc vào mảng để logic Frontend chạy được
+                setTodayAttendance([record]);
+            } else {
+                // Nếu record là null (chưa điểm danh), để mảng rỗng
+                setTodayAttendance([]);
+            } 
         } catch (err) { 
-            console.error(err); 
+            console.error(err);
         }
     };
+
+    const getHistoryAttendance = useCallback(async (startDate, endDate) => {
+        if (!user) return;
+
+        setIsLoading(true);
+        try {
+            const res = await attendanceApi.getHistory(user.id, startDate, endDate);
+            setHistoryAttendance(res.data || res || []);
+            return res.data || [];
+        } catch (error) {
+            console.error("Lỗi lấy lịch sử chấm công:", error);
+            toast.error("Không thể tải lịch sử chấm công");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [user]);
 
     return {
         isLoading,
         todayAttendance,
+        historyAttendance,
+        getHistoryAttendance,
         checkIn: (params) => handleAttendance('checkin', params),
         checkOut: (params) => handleAttendance('checkout', params),
         loadTodayAttendance

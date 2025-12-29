@@ -3,25 +3,19 @@ import { AuthContext } from '../backend/context/Auth'
 import { Navigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-const RequireAuth = ({children}) => {
+const RequireAuth = ({children, allowedRoles}) => {
      const {user, loading} = useContext(AuthContext);
 
-    useEffect(() => {
-        // Chỉ hiển thị toast khi đã hoàn thành loading và không c  ó user
-        if (!loading && !user) {
-            toast.info("Vui lòng đăng nhập để tiếp tục");
-        }
-    }, [user, loading]);
+    if (loading) return <div>Đang kiểm tra...</div>;
 
-    // Hiển thị loading trong khi kiểm tra auth
-    if (loading) {
-        return <div className="flex justify-center items-center min-h-screen">
-            <div className="text-lg">Đang kiểm tra...</div>
-        </div>;
+    if (!user) {
+        return <Navigate to="/login" />;
     }
 
-    if(!user) {
-        return <Navigate to="/login"/>
+    // Nếu có yêu cầu role cụ thể mà user không khớp -> đá về trang điểm danh
+    if (allowedRoles && !allowedRoles.includes(user.role)) {
+        toast.error("Bạn không có quyền vào khu vực này");
+        return <Navigate to="/user/attendance" />;
     }
 
     return children;

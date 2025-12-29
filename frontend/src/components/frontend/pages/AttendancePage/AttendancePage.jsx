@@ -11,8 +11,11 @@ import { useAttendance } from '../../hooks/useAttendance';
 
 import { addWatermark, compressImage } from '../../services/utils/imageService';
 import VideoContainer from '../../../common/VideoContainer/VideoContainer';
+import { AuthContext } from '../../../backend/context/Auth';
+import AddressDisplay from '../HistoryPage/AddressDisplay';
 
 const AttendancePage = () => {
+    const { user } = useContext(AuthContext);
     const camera = useCamera();
     const location = useLocation();
     const { 
@@ -28,9 +31,6 @@ const AttendancePage = () => {
     const [showResult, setShowResult] = useState(false);
     const [resultData, setResultData] = useState(null);
 
-    // Lấy bản ghi đầu tiên trong mảng data trả về từ Laravel
-    const todayRecord = todayAttendance && todayAttendance.length > 0 ? todayAttendance[0] : null;
-
     useEffect(() => {
         const interval = setInterval(() => setCurrentTime(new Date()), 1000);
         location.getCurrentLocation().catch(() => toast.error("Không thể xác định vị trí!"));
@@ -40,8 +40,13 @@ const AttendancePage = () => {
             clearInterval(interval);
             camera.stop();
         };
-    }, []);
+    }, [user]);
 
+    // Lấy bản ghi đầu tiên trong mảng data trả về từ Laravel
+    const todayRecord = (Array.isArray(todayAttendance) && todayAttendance.length > 0) 
+    ? todayAttendance[0] 
+    : null;
+    
     // Hàm hỗ trợ hiển thị giờ đẹp (HH:mm)
     const formatDisplayTime = (timeString) => {
         if (!timeString) return '--:--';
@@ -104,6 +109,8 @@ const AttendancePage = () => {
             } else {
                 await checkOut(attendanceParams);
             }
+
+            await loadTodayAttendance(); // Tải lại dữ liệu điểm danh hôm nay
 
             // Bước F: Hiển thị kết quả thành công
             setResultData({
@@ -205,19 +212,55 @@ const AttendancePage = () => {
                                     </div>
                                 )}
                             </div>
-
-                            {/* XUẤT DỮ LIỆU ĐÃ ATTENDANCE TODAY TẠI ĐÂY */}
-                            <div className="today-status-bar">
-                                <div className={`status-item ${todayRecord?.check_in ? 'completed' : ''}`}>
-                                    <i className="fas fa-sign-in-alt"></i> Vào ca: 
-                                    <strong> {formatDisplayTime(todayRecord?.check_in)}</strong>
-                                </div>
-                                <div className={`status-item ${todayRecord?.check_out ? 'completed' : ''}`}>
-                                    <i className="fas fa-sign-out-alt"></i> Tan ca: 
-                                    <strong> {formatDisplayTime(todayRecord?.check_out)}</strong>
-                                </div>
-                            </div>
                         </div>
+
+                        {/* THANH TRẠNG THÁI CHẤM CÔNG HÔM NAY */}
+                            {todayRecord && (
+                                <div className="today-full-details">
+                                    <div className="detail-header">
+                                        <h3><i className="fas fa-calendar-day"></i> Chi tiết chấm công ngày {todayRecord.date}</h3>
+                                        <span className={`status-badge ${todayRecord.status}`}>
+                                            {todayRecord.status_label}
+                                        </span>
+                                    </div>
+
+                                    <div className="detail-grid">
+                                        {/* PHẦN VÀO CA */}
+                                        <div className={`detail-box in ${todayRecord.check_in ? 'active' : ''}`}>
+                                            <div className="box-label">VÀO CA</div>
+                                            <div className="box-content">
+                                                <div className="time">{todayRecord.check_in || '--:--'}</div>
+                                                {todayRecord.check_in_image && (
+                                                    <div className="image-preview">
+                                                        <img src={todayRecord.check_in_image} alt="Ảnh vào ca" />
+                                                    </div>
+                                                )}
+                                                <div className="location">
+                                                    <i className="fas fa-map-marker-alt"></i> 
+                                                    <AddressDisplay coords={todayRecord.check_in_location} getAddressFn={location.getAddressFromCoords} />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* PHẦN TAN CA */}
+                                        <div className={`detail-box out ${todayRecord.check_out ? 'active' : ''}`}>
+                                            <div className="box-label">TAN CA</div>
+                                            <div className="box-content">
+                                                <div className="time">{todayRecord.check_out || '--:--'}</div>
+                                                {todayRecord.check_out_image && (
+                                                    <div className="image-preview">
+                                                        <img src={todayRecord.check_out_image} alt="Ảnh tan ca" />
+                                                    </div>
+                                                )}
+                                                <div className="location">
+                                                    <i className="fas fa-map-marker-alt"></i> 
+                                                    <AddressDisplay coords={todayRecord.check_out_location} getAddressFn={location.getAddressFromCoords} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                     </div>
                 </main>
             </div>

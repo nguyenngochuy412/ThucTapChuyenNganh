@@ -36,10 +36,12 @@ const Login = () => {
             const userData = {
                 id: result.id,
                 name: result.name,
-                avatar: result.avatar, // Đã sửa lỗi chính tả từ result.avartar
-                can_create_notification: result.can_create_notification,
+                role: result.role,
+                avatar: result.avatar, 
+                department_id: result.department_id,
                 department: result.department,
-                position: result.position
+                position: result.position,
+                can_create_notification: result.can_create_notification,
             };
 
             // 2. Gọi hàm login từ AuthContext 

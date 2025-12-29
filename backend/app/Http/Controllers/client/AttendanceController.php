@@ -4,9 +4,9 @@ namespace App\Http\Controllers\client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendances;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str as SupportStr;
 
@@ -31,6 +31,36 @@ class AttendanceController extends Controller
         $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);
         $c = 2 * atan2(sqrt($a), sqrt(1-$a));
         return $earthRadius * $c;
+    }
+
+    private function getStatusLabel($status)
+    {
+        $labels = [
+            'present'     => 'Đúng giờ',
+            'late'        => 'Đi muộn',
+            'early_leave' => 'Về sớm',
+            'late_early'  => 'Trễ & Sớm',
+        ];
+
+        return $labels[$status] ?? 'N/A';
+    }
+
+    private function transformAttendance($item)
+    {
+        return [
+            'id'                 => $item->id,
+            'date'               => $item->date->format('d/m/Y'),
+            'check_in'           => $item->check_in ? Carbon::parse($item->check_in)->format('H:i') : null,
+            'check_out'          => $item->check_out ? Carbon::parse($item->check_out)->format('H:i') : null,
+            'check_in_location'  => $item->check_in_location,
+            'check_out_location' => $item->check_out_location,
+            // Tạo URL tuyệt đối cho ảnh
+            'check_in_image'     => $item->check_in_image ? asset('storage/' . $item->check_in_image) : null,
+            'check_out_image'    => $item->check_out_image ? asset('storage/' . $item->check_out_image) : null,
+            'status'             => $item->status,
+            'status_label'       => $this->getStatusLabel($item->status), // Dùng cái này để hiển thị tiếng Việt
+            'work_hours'         => $item->work_hours,
+        ];
     }
 
     public function checkIn(Request $request)
@@ -70,17 +100,33 @@ class AttendanceController extends Controller
 
         // 4. Kiểm tra trạng thái trong ngày
         $today = Carbon::today()->toDateString();
+        $now = Carbon::now();
+
+        // 5. Lấy giờ bắt đầu làm việc (Mặc định 08:00:00)
+        $startTimeStr = $department->start_time ?? '08:00:00';
+        $officeStartTime = Carbon::createFromFormat('H:i:s', $startTimeStr)->setDate($now->year, $now->month, $now->day);
+
+        // 6. Kiểm tra đã check-in hôm nay chưa
         $attendance = Attendances::where('user_id', $user->id)->where('date', $today)->first();
 
         if ($attendance && $attendance->check_in) {
             return response()->json(['message' => 'Bạn đã check-in ngày hôm nay rồi!'], 400);
         }
 
-        // 5. Lưu thông tin
+        // 7. Lưu thông tin
         if (!$attendance) {
             $attendance = new Attendances();
             $attendance->user_id = $user->id;
             $attendance->date = $today;
+        }
+
+         // 8. Xác định trạng thái "Đi trễ"
+        // Cho phép trễ 15 phút (tùy chọn): $officeStartTime->addMinutes(15)
+        $graceLimit = $officeStartTime->copy()->addMinutes(15);
+        if ($now->greaterThan($graceLimit)) {
+            $attendance->status = 'late';
+        } else {
+            $attendance->status = 'present';
         }
 
         $attendance->check_in = Carbon::now()->toTimeString();
@@ -136,12 +182,23 @@ class AttendanceController extends Controller
             }
         }
 
-        // 4. Lưu dữ liệu check-out
+        // 4. Lấy giờ tan làm (Mặc định 17:00:00)
+        $endTimeStr = $department->end_time ?? '17:00:00';
+        $officeEndTime = Carbon::createFromFormat('H:i:s', $endTimeStr)->setDate($now->year, $now->month, $now->day);
+
+        // 5. Xác định trạng thái "Về sớm"
+        if ($now->lessThan($officeEndTime)) {
+            // Nếu sáng đã trễ thì ghi nhận 'late_early' (Cả trễ cả sớm)
+            // Nếu sáng đúng giờ thì ghi nhận 'early_leave' (Về sớm)
+            $attendance->status = ($attendance->status === 'late') ? 'late_early' : 'early_leave';
+        }
+
+        // 6. Lưu dữ liệu check-out
         $attendance->check_out = $now->toTimeString();
         $attendance->check_out_image = $this->saveBase64Image($request->imageData, 'attendance/checkout');
         $attendance->check_out_location = $request->location['latitude'] . ',' . $request->location['longitude'];
 
-        // 5. Tính toán giờ làm việc (work_hours)
+        // 7. Tính toán giờ làm việc (work_hours)
         // Chuyển đổi check_in từ string sang đối tượng Carbon để tính toán
         $checkInTime = Carbon::createFromFormat('H:i:s', $attendance->check_in);
         
@@ -158,13 +215,59 @@ class AttendanceController extends Controller
         ]);
     }
 
-    public function getTodayAttendance($userId)
+    public function getTodayAttendance()
     {
+        $userId = Auth::id();
         $attendance = Attendances::where('user_id', $userId)
                                 ->where('date', Carbon::today()->toDateString())
                                 ->first();
         
         // Trả về mảng để khớp với logic .filter() ở Frontend
-        return response()->json(['data' => $attendance ? [$attendance] : []]);
+        $data = $attendance ? $this->transformAttendance($attendance) : null;
+        return response()->json(['data' => $data]);
+    }
+
+    public function getHistory(Request $request)
+    {
+        $userId = Auth::id(); // Ưu tiên lấy ID từ Token để bảo mật
+        $startDate = $request->query('startDate');
+        $endDate = $request->query('endDate');
+
+        // KIỂM TRA LỖI: Nếu có ngày kết thúc mà không có ngày bắt đầu
+        if (empty($startDate) && !empty($endDate)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Vui lòng chọn "Ngày bắt đầu" trước khi chọn "Ngày kết thúc"!'
+            ], 400); // Trả về mã lỗi 400 (Bad Request)
+        }
+
+        $query = Attendances::where('user_id', $userId);
+
+        // Kiểm tra nếu có đầy đủ ngày bắt đầu và ngày kết thúc
+        if (!empty($startDate)) {
+            if (!empty($endDate)) {
+                // Trường hợp: Có cả hai ngày
+                $query->whereBetween('date', [$startDate, $endDate]);
+            } else {
+                // Trường hợp: Chỉ có startDate -> Lấy từ đó đến nay
+                $query->where('date', '>=', $startDate);
+            }
+        } else {
+            // Trường hợp: Cả 2 đều trống -> Lấy 7 cái cuối
+            $query->limit(7);
+        }
+
+        // Lấy dữ liệu và sắp xếp mới nhất lên đầu
+        $history = $query->orderBy('date', 'desc')->get();
+
+        // Map lại dữ liệu để khớp với tên biến ở Frontend (nếu cần)
+        $formattedData = $history->map(function ($item) {
+            return $this->transformAttendance($item);
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $formattedData
+        ]);
     }
 }
