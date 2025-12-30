@@ -12,6 +12,9 @@ import NotificationPage from './components/frontend/pages/NotificationPage/Notif
 import RequestPage from './components/frontend/pages/RequestPage/RequestPage';
 import HistoryPage from './components/frontend/pages/HistoryPage/HistoryPage';
 import ProfilePage from './components/frontend/pages/ProfilePage/ProfilePage';
+import AdminLayout from './components/backend/main/AdminLayout';
+import UserManagementPage from './components/backend/pages/UserManagementPage/UserManagementPage';
+import DashboardPage from './components/backend/pages/DashboardPage/DashboardPage';
 
 function App() {
 
@@ -63,19 +66,15 @@ function App() {
             } />
 
             {/* --- NHÓM ROUTE CHỈ DÀNH CHO ADMIN --- */}
-            {/* 
-            <Route path="/admin/dashboard" element={
-              <RequireAuth allowedRoles={['admin']}>
-                <AdminDashboard />
-              </RequireAuth>
-            } />
-            
-            <Route path="/admin/users" element={
-              <RequireAuth allowedRoles={['admin']}>
-                <UserManagement />
-              </RequireAuth>
-            } /> 
-            */}
+            <Route path="/admin" element={
+                <RequireAuth allowedRoles={['admin']}>
+                    <AdminLayout />
+                </RequireAuth>
+            }>
+                <Route path="dashboard" element={<DashboardPage />} />
+                <Route path="users" element={<UserManagementPage />} />
+                {/* Thêm các route admin khác ở đây */}
+            </Route>
 
             {/* CATCH ALL: Nếu gõ linh tinh thì về trang chủ */}
             <Route path="*" element={<Navigate to="/" />} />

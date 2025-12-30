@@ -3,6 +3,10 @@ import api from './api';
 const locationApi = {
     // 1. Lấy địa chỉ từ tọa độ (Giữ nguyên - Phục vụ hiển thị UI)
     reverseGeocode: async (latitude, longitude) => {
+        if (latitude === undefined || longitude === undefined || latitude === null || longitude === null) {
+            console.warn("Tọa độ không hợp lệ:", { latitude, longitude });
+            return { address: 'Không có dữ liệu tọa độ' };
+        }
         try {
             const response = await axios.get(`https://nominatim.openstreetmap.org/reverse`, {
                 params: {

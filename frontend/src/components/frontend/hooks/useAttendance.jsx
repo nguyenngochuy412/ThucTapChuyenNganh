@@ -2,7 +2,6 @@ import { useState, useContext, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../backend/context/Auth';
 import attendanceApi from '../services/api/attendanceApi';
-import { set } from 'react-hook-form';
 
 export const useAttendance = () => {
     const { user } = useContext(AuthContext);

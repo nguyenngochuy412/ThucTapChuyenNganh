@@ -1,6 +1,8 @@
 <?php
 
 use App\Events\MessageSent as EventsMessageSent;
+use App\Http\Controllers\admin\DashboardController;
+use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\client\AttendanceController;
 use App\Http\Controllers\client\NotificationController;
@@ -44,7 +46,16 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
     });
 
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {
-        Route::get('dashboard', [DashboardController::class, 'index']);
-        Route::post('users/create', [AdminUserController::class, 'store']);
+        Route::get('dashboard-stats', [DashboardController::class, 'getStats']);
+        Route::get('getAttendanceTrend', [DashboardController::class, 'getAttendanceTrend']);
+        Route::get('getSalaryByDepartment', [DashboardController::class, 'getSalaryByDepartment']);
+
+        Route::prefix('users')->group(function () {
+            Route::get('show', [UserController::class, 'index']);
+            Route::get('showMetaData', [UserController::class, 'metaData']);
+            Route::post('create', [UserController::class, 'create']);
+            Route::put('{id}', [UserController::class, 'update']);
+            Route::delete('{id}', [UserController::class, 'delete']);
+        });
     });
 });

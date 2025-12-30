@@ -12,7 +12,7 @@ const ProfilePage = () => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [showPassModal, setShowPassModal] = useState(false);
-    const [editData, setEditData] = useState({ name: '', email: '', phone: '', address: '', birth_date: '' });
+    const [editData, setEditData] = useState({ name: '', phone: '', address: '', birth_date: '' });
     const [passData, setPassData] = useState({ current_password: '', new_password: '', new_password_confirmation: '' });
 
     useEffect(() => {
@@ -35,7 +35,6 @@ const ProfilePage = () => {
     const openEditMode = () => {
         setEditData({
             name: profileData?.name || '',
-            email: profileData?.email || '',
             phone: profileData?.phone || '',
             address: profileData?.address || '',
             birth_date: profileData?.birth_date || ''
@@ -147,16 +146,9 @@ const ProfilePage = () => {
 
                                 <div className="info-group">
                                     <label><i className="fas fa-envelope"></i> Email công việc</label>
-                                    {isEditing ? (
-                                        <input 
-                                            className="edit-input" 
-                                            type="email"
-                                            value={editData.email} 
-                                            onChange={e => setEditData({...editData, email: e.target.value})} 
-                                        />
-                                    ) : (
-                                        <div className="info-value">{profileData?.email || 'Chưa cập nhật'}</div>
-                                    )}
+                                    <div className="info-value muted">
+                                        {profileData?.email || 'Chưa cập nhật'}
+                                    </div>
                                 </div>
 
                                 <div className="info-group">

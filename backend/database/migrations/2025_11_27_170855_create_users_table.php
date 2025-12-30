@@ -35,7 +35,6 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->boolean('is_active')->default(true);
             $table->enum('role', ['admin', 'employee'])->default('employee');
-            // $table->enum('role', ['1', '0'])->default('0');
         });
     }
 

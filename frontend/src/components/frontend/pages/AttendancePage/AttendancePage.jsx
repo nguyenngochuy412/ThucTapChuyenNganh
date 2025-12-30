@@ -46,13 +46,6 @@ const AttendancePage = () => {
     const todayRecord = (Array.isArray(todayAttendance) && todayAttendance.length > 0) 
     ? todayAttendance[0] 
     : null;
-    
-    // Hàm hỗ trợ hiển thị giờ đẹp (HH:mm)
-    const formatDisplayTime = (timeString) => {
-        if (!timeString) return '--:--';
-        // Nếu timeString là "04:07:59", ta lấy "04:07"
-        return timeString.substring(0, 5);
-    };
 
     // Hàm khi bấm nút Check-in hoặc Check-out chính
     const handleStartAction = async (mode) => {
@@ -79,7 +72,7 @@ const AttendancePage = () => {
                 toast.warning("Đang xác định vị trí, vui lòng đợi...");
                 await location.getCurrentLocation();
             }
-
+            
             // Bước B: Chụp ảnh thô từ camera
             const rawImageData = await camera.captureImage({ quality: 0.9 });
 

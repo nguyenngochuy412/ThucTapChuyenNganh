@@ -55,14 +55,13 @@ class ProfileController extends Controller
 
         $request->validate([
             'name'       => 'required|string|max:255',
-            'email'      => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone'      => 'nullable|string|max:20',
             'address'    => 'nullable|string',
             'birth_date' => 'nullable|date',
             'avatar'     => 'nullable|string',
         ]);
 
-        $data = $request->only(['name', 'email', 'phone', 'address', 'birth_date']);
+        $data = $request->only(['name', 'phone', 'address', 'birth_date']);
 
         // Xử lý Avatar
         if ($request->avatar && str_contains($request->avatar, 'data:image')) {

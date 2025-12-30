@@ -20,6 +20,7 @@
     "react-hook-form": "^7.66.0",
     "react-router-dom": "^7.9.5",
     "react-toastify": "^11.0.5",
+    "recharts": "^3.6.0",
     "sass-embedded": "^1.93.3"
   },
   "devDependencies": {

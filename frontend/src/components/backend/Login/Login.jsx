@@ -49,7 +49,11 @@ const Login = () => {
             login(userData, result.token); 
 
             toast.success("Đăng nhập thành công!");
-            navigate('/user/attendance');     
+            if (result.role === 'admin') {
+                navigate('/admin/dashboard');
+            } else {
+                navigate('/user/attendance');
+            }  
         }
     }
 

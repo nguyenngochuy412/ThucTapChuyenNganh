@@ -26,6 +26,7 @@ export const useLocation = () => {
                     
                     // Lấy địa chỉ hiển thị
                     const info = await locationApi.reverseGeocode(coords.latitude, coords.longitude);
+                    
                     setAddress(info.address);
                     
                     setIsLoading(false);
