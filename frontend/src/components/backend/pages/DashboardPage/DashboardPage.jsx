@@ -59,7 +59,7 @@ const DashboardPage = () => {
                     <div className="stat-icon orange">📝</div>
                     <div className="stat-info">
                         <span className="value">{stats.department_active || 0}</span>
-                        <span className="label">Đơn đang chờ duyệt</span>
+                        <span className="label">Phòng ban đang hoạt động</span>
                     </div>
                 </div>
 

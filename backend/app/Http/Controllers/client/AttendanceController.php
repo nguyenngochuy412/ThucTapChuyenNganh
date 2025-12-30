@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\client;
 
+use App\Exports\SalaryExport;
 use App\Http\Controllers\Controller;
 use App\Models\Attendances;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str as SupportStr;
+use Maatwebsite\Excel\Excel;
 
 class AttendanceController extends Controller
 {
@@ -124,15 +127,14 @@ class AttendanceController extends Controller
         // Cho phép trễ 15 phút (tùy chọn): $officeStartTime->addMinutes(15)
         $graceLimit = $officeStartTime->copy()->addMinutes(15);
         if ($now->greaterThan($graceLimit)) {
-            $attendance->status = 'late';
+            $attendance->status = 'late'; // Đi muộn
         } else {
-            $attendance->status = 'present';
+            $attendance->status = 'present'; // Đúng giờ
         }
 
         $attendance->check_in = Carbon::now()->toTimeString();
         $attendance->check_in_image = $this->saveBase64Image($request->imageData, 'attendance/checkin');
         $attendance->check_in_location = $request->location['latitude'] . ',' . $request->location['longitude'];
-        $attendance->status = 'present';
         $attendance->save();
 
         return response()->json(['status' => 'success', 'message' => 'Check-in thành công!', 'data' => $attendance]);
@@ -188,10 +190,14 @@ class AttendanceController extends Controller
 
         // 5. Xác định trạng thái "Về sớm"
         if ($now->lessThan($officeEndTime)) {
-            // Nếu sáng đã trễ thì ghi nhận 'late_early' (Cả trễ cả sớm)
-            // Nếu sáng đúng giờ thì ghi nhận 'early_leave' (Về sớm)
-            $attendance->status = ($attendance->status === 'late') ? 'late_early' : 'early_leave';
-        }
+            if ($attendance->status === 'late') {
+                // Sáng đã trễ, chiều lại về sớm -> Lỗi kép
+                $attendance->status = 'late_early';
+            } else {
+                // Sáng đúng giờ, nhưng chiều về sớm
+                $attendance->status = 'early'; 
+            }
+        } 
 
         // 6. Lưu dữ liệu check-out
         $attendance->check_out = $now->toTimeString();
@@ -269,5 +275,57 @@ class AttendanceController extends Controller
             'status' => 'success',
             'data' => $formattedData
         ]);
+    }
+
+    public function getSalaryReport(Request $request) {
+        $month = $request->month ?? date('m');
+        $year = $request->year ?? date('Y');
+
+        $users = User::with(['position', 'department', 'attendances' => function($q) use ($month, $year) {
+            $q->whereMonth('date', $month)->whereYear('date', $year);
+        }])->get();
+
+        $report = $users->map(function($user) {
+            $baseSalary = $user->position->salary ?? 0;
+            
+            // 1. Số lần đi làm đầy đủ (Present cả in và out)
+            $fullAttendance = $user->attendances->where('status', 'present')->count();
+
+            // 2. Số lần đi muộn HOẶC về sớm (Chỉ bị 1 trong 2)
+            $lateOrEarly = $user->attendances->whereIn('status', ['late', 'early'])->count();
+
+            // 3. Số lần VỪA đi muộn VỪA về sớm (Giả sử bạn có status riêng hoặc logic check)
+            // Nếu database lưu status là 'late_early':
+            $lateAndEarly = $user->attendances->where('status', 'late_early')->count();
+
+            // Tính tiền phạt (Ví dụ: 1 lỗi = 50k, 2 lỗi cùng lúc = 120k)
+            $penaltyAmount = ($lateOrEarly * 50000) + ($lateAndEarly * 120000);
+
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'position_name' => $user->position->name ?? 'N/A',
+                'department_name' => $user->department->name ?? 'N/A',
+                'base_salary' => $baseSalary,
+                'full_attendance_count' => $fullAttendance,
+                'late_or_early_count' => $lateOrEarly,
+                'late_and_early_count' => $lateAndEarly,
+                'penalty_amount' => $penaltyAmount,
+                'final_salary' => $baseSalary - $penaltyAmount
+            ];
+        });
+
+        return response()->json($report);
+    }
+
+    public function exportSalaryExcel(Request $request) 
+    {
+        // Lấy dữ liệu báo cáo (Dùng chung logic với hàm hiển thị)
+        $reportData = $this->getSalaryReport($request)->original; 
+        
+        $fileName = 'Bang_Luong_' . date('m_Y') . '.xlsx';
+        
+        return Excel::download(new SalaryExport($reportData), $fileName);
     }
 }

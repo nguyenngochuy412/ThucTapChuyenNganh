@@ -8,6 +8,7 @@ export const useAttendance = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [todayAttendance, setTodayAttendance] = useState([]);
     const [historyAttendance, setHistoryAttendance] = useState([]);
+    const [salaryData, setSalaryData] = useState([]);
 
     const handleAttendance = async (type, attendanceParams) => {
         try {
@@ -73,6 +74,21 @@ export const useAttendance = () => {
         }
     }, [user]);
 
+     const fetchSalaryReport = useCallback(async (filters) => {
+        if (!user) return;
+        
+        setIsLoading(true);
+        try {
+            const res = await attendanceApi.getSalaryReport(filters);
+            // Laravel trả về mảng dữ liệu tính toán sẵn
+            setSalaryData(res.data);
+        } catch (error) {
+            toast.error("Không thể tải báo cáo lương");
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
     return {
         isLoading,
         todayAttendance,
@@ -80,6 +96,8 @@ export const useAttendance = () => {
         getHistoryAttendance,
         checkIn: (params) => handleAttendance('checkin', params),
         checkOut: (params) => handleAttendance('checkout', params),
-        loadTodayAttendance
+        loadTodayAttendance,
+        fetchSalaryReport,
+        salaryData
     };
 };

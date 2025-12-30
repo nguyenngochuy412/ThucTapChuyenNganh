@@ -15,6 +15,8 @@ import ProfilePage from './components/frontend/pages/ProfilePage/ProfilePage';
 import AdminLayout from './components/backend/main/AdminLayout';
 import UserManagementPage from './components/backend/pages/UserManagementPage/UserManagementPage';
 import DashboardPage from './components/backend/pages/DashboardPage/DashboardPage';
+import DepartmentPage from './components/backend/pages/DepartmentPage/DepartmentPage';
+import AttendanceManagementPage from './components/backend/pages/AttendanceManagementPage/AttendanceManagementPage';
 
 function App() {
 
@@ -73,7 +75,8 @@ function App() {
             }>
                 <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="users" element={<UserManagementPage />} />
-                {/* Thêm các route admin khác ở đây */}
+                <Route path="departments" element={<DepartmentPage />} />
+                <Route path="attendance" element={<AttendanceManagementPage />} />
             </Route>
 
             {/* CATCH ALL: Nếu gõ linh tinh thì về trang chủ */}

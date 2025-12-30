@@ -2,6 +2,7 @@
 
 use App\Events\MessageSent as EventsMessageSent;
 use App\Http\Controllers\admin\DashboardController;
+use App\Http\Controllers\admin\DepartmentController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\client\AttendanceController;
@@ -49,6 +50,8 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
         Route::get('dashboard-stats', [DashboardController::class, 'getStats']);
         Route::get('getAttendanceTrend', [DashboardController::class, 'getAttendanceTrend']);
         Route::get('getSalaryByDepartment', [DashboardController::class, 'getSalaryByDepartment']);
+        Route::get('/attendance/salary-report', [AttendanceController::class, 'getSalaryReport']);
+        Route::get('/export-salary', [AttendanceController::class, 'exportSalaryExcel']);
 
         Route::prefix('users')->group(function () {
             Route::get('show', [UserController::class, 'index']);
@@ -56,6 +59,13 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::post('create', [UserController::class, 'create']);
             Route::put('{id}', [UserController::class, 'update']);
             Route::delete('{id}', [UserController::class, 'delete']);
+        });
+
+        Route::prefix('departments')->group(function () {
+            Route::get('/', [DepartmentController::class, 'index']);      // Lấy danh sách
+            Route::post('/', [DepartmentController::class, 'store']);     // Tạo mới (Thay cho create)
+            Route::put('{id}', [DepartmentController::class, 'update']);  // Cập nhật
+            Route::delete('{id}', [DepartmentController::class, 'destroy']); // Xóa (Thay cho delete)
         });
     });
 });

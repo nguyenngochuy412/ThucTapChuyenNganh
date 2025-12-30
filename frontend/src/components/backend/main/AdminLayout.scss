@@ -1,309 +1,539 @@
-// Variables
+// =============================================================================
+// ADMIN GLOBAL SCSS - HRM PRO SYSTEM
+// =============================================================================
+
+// --- 1. BIẾN HỆ THỐNG (VARIABLES) ---
+// --- 1. BIẾN HỆ THỐNG (VARIABLES) ---
 $primary: #4f46e5;
-$primary-light: #eef2ff;
+$primary-dark: #4338ca;
+$primary-light: #f5f7ff;
+
 $success: #10b981;
+$success-light: #ecfdf5; // Thêm dòng này
+
 $danger: #ef4444;
+$danger-light: #fef2f2;  // Thêm dòng này
+
 $warning: #f59e0b;
-$bg-body: #f8fafc;
-$sidebar-bg: #ffffff;
+$warning-light: #fffbeb; // Thêm dòng này (nếu cần dùng)
+
+$info: #3b82f6;
+$info-light: #eff6ff;    // Thêm dòng này
+
 $text-main: #1e293b;
 $text-muted: #64748b;
+$bg-body: #f8fafc;
+$white: #ffffff;
 $border-color: #e2e8f0;
-$shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+$transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+// --- 2. LAYOUT CHÍNH (ADMIN CONTAINER) ---
 .admin-container {
-  display: flex;
-  min-height: 100vh;
-  background-color: $bg-body;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-
-  // Sidebar
-  .admin-sidebar {
-    width: 260px;
-    background: $sidebar-bg;
-    border-right: 1px solid $border-color;
     display: flex;
-    flex-direction: column;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    z-index: 50;
+    min-height: 100vh;
+    background-color: $bg-body;
+    font-family: 'Inter', system-ui, sans-serif;
 
-    .admin-logo {
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      border-bottom: 1px solid $border-color;
-
-      h2 {
-        color: $primary;
-        font-size: 1.25rem;
-        font-weight: 800;
-        margin: 0;
-        letter-spacing: -0.025em;
-      }
-      span {
-        font-size: 0.75rem;
-        color: $text-muted;
-        font-weight: 500;
-      }
-    }
-
-    .sidebar-menu {
-      padding: 20px 12px;
-      flex-grow: 1;
-
-      .menu-label {
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: #94a3b8;
-        text-transform: uppercase;
-        padding-left: 12px;
-        margin-bottom: 12px;
-        letter-spacing: 0.05em;
-      }
-
-      .admin-menu-item {
+    // SIDEBAR
+    .admin-sidebar {
+        width: 260px;
+        background: $white;
+        border-right: 1px solid $border-color;
         display: flex;
-        align-items: center;
-        padding: 12px 16px;
-        margin-bottom: 4px;
-        border-radius: 10px;
-        color: $text-muted;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 0.95rem;
-        transition: $transition;
+        flex-direction: column;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        z-index: 100;
 
-        .icon {
-          margin-right: 12px;
-          font-size: 1.2rem;
+        .admin-logo {
+            padding: 24px;
+            border-bottom: 1px solid $border-color;
+            h2 {
+                color: $primary;
+                font-size: 1.4rem;
+                font-weight: 800;
+                margin: 0;
+                letter-spacing: -0.5px;
+            }
+            span {
+                font-size: 0.75rem;
+                color: $text-muted;
+                font-weight: 600;
+                text-transform: uppercase;
+            }
         }
 
-        &:hover {
-          background-color: $bg-body;
-          color: $primary;
-          transform: translateX(4px);
-        }
+        .sidebar-menu {
+            padding: 20px 12px;
+            flex-grow: 1;
+            overflow-y: auto;
 
-        &.active {
-          background-color: $primary-light;
-          color: $primary;
-          font-weight: 600;
-          
-          &::after {
-            content: '';
-            width: 5px;
-            height: 20px;
-            background: $primary;
-            position: absolute;
-            right: 0;
-            border-radius: 4px 0 0 4px;
-          }
+            .menu-label {
+                font-size: 0.7rem;
+                font-weight: 700;
+                color: #94a3b8;
+                text-transform: uppercase;
+                padding: 0 12px;
+                margin: 20px 0 10px;
+                letter-spacing: 1px;
+            }
+
+            .admin-menu-item {
+                display: flex;
+                align-items: center;
+                padding: 12px 16px;
+                margin-bottom: 4px;
+                border-radius: $radius-sm;
+                color: $text-muted;
+                text-decoration: none;
+                font-weight: 500;
+                transition: $transition;
+                position: relative;
+
+                .icon { margin-right: 12px; font-size: 1.2rem; }
+
+                &:hover {
+                    background-color: $primary-light;
+                    color: $primary;
+                }
+
+                &.active {
+                    background-color: $primary-light;
+                    color: $primary;
+                    font-weight: 700;
+                    &::after {
+                        content: '';
+                        position: absolute;
+                        right: 0;
+                        width: 4px;
+                        height: 20px;
+                        background: $primary;
+                        border-radius: 4px 0 0 4px;
+                    }
+                }
+            }
         }
-      }
     }
-  }
 
-  // Main Content Area
-  .admin-main {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    max-width: calc(100% - 260px);
+    // MAIN CONTENT
+    .admin-main {
+        flex-grow: 1;
+        max-width: calc(100% - 260px);
+        display: flex;
+        flex-direction: column;
 
-    // Header
-    .admin-header {
-      height: 70px;
-      background: white;
-      border-bottom: 1px solid $border-color;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 32px;
-      position: sticky;
-      top: 0;
-      z-index: 40;
+        .admin-header {
+            height: 72px;
+            background: $white;
+            border-bottom: 1px solid $border-color;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
 
-      .page-title {
-        h1 {
-          font-size: 1.25rem;
-          font-weight: 700;
-          color: $text-main;
-          margin: 0;
+            .page-title h1 {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: $text-main;
+                margin: 0;
+            }
+
+            .admin-user-nav {
+                display: flex;
+                align-items: center;
+                gap: 24px;
+
+                .admin-profile {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    .avatar {
+                        width: 40px; height: 40px;
+                        background: $primary; color: $white;
+                        border-radius: 50%; font-weight: 700;
+                        display: flex; align-items: center; justify-content: center;
+                    }
+                    .info {
+                        .name { font-weight: 600; font-size: 0.9rem; color: $text-main; display: block; }
+                        .role { font-size: 0.75rem; color: $text-muted; }
+                    }
+                }
+
+                .btn-logout-admin {
+                    padding: 8px 16px;
+                    border-radius: $radius-sm;
+                    background: #fff1f2;
+                    color: $danger;
+                    border: 1px solid #fecaca;
+                    font-weight: 600;
+                    cursor: pointer;
+                    &:hover { background: $danger; color: $white; }
+                }
+            }
         }
-      }
 
-      .admin-user-nav {
+        .admin-content-body {
+            padding: 32px;
+            animation: fadeIn 0.4s ease-out;
+        }
+    }
+}
+
+// --- 3. CÁC THÀNH PHẦN DÙNG CHUNG (COMMON COMPONENTS) ---
+
+// Card style
+.admin-card {
+    background: $white;
+    border-radius: $radius-md;
+    box-shadow: $shadow;
+    padding: 24px;
+    border: 1px solid $border-color;
+    margin-bottom: 24px;
+
+    .card-header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        .title-group {
+            h3 { font-size: 1.2rem; font-weight: 700; margin: 0; }
+            p { font-size: 0.85rem; color: $text-muted; margin: 4px 0 0; }
+        }
+    }
+}
+
+// Table style (Hiện đại)
+.table-responsive {
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    overflow: hidden;
+
+    .modern-table {
+        width: 100%;
+        border-collapse: collapse;
+        th {
+            background: $bg-body;
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: $text-muted;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 16px;
+            border-top: 1px solid $border-color;
+            font-size: 0.9rem;
+            color: $text-main;
+        }
+        tr:hover { background-color: #fafafa; }
+    }
+}
+
+// Filter Row (Grid chia 3 cột)
+.filter-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    .search-wrapper {
+        position: relative;
+        input {
+            width: 100%; padding: 10px 12px 10px 40px;
+            border: 1px solid $border-color; border-radius: $radius-sm;
+            &:focus { border-color: $primary; outline: none; }
+        }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: $text-muted; }
+    }
+
+    select, input[type="date"] {
+        padding: 10px;
+        border: 1px solid $border-color;
+        border-radius: $radius-sm;
+        outline: none;
+        &:focus { border-color: $primary; }
+    }
+}
+
+// Nút bấm
+.btn-add, .btn-primary {
+    background: $primary; color: $white; border: none;
+    padding: 10px 20px; border-radius: $radius-sm;
+    font-weight: 600; cursor: pointer; transition: $transition;
+    &:hover { background: $primary-dark; transform: translateY(-1px); }
+}
+
+.action-btns {
+    display: flex; gap: 8px; justify-content: center;
+    button {
+        width: 32px; height: 32px; border: 1px solid $border-color;
+        background: $white; border-radius: 6px; cursor: pointer;
+        &:hover { border-color: $primary; color: $primary; }
+        &.btn-delete:hover { border-color: $danger; color: $danger; }
+    }
+}
+
+// Badge hệ thống
+.status-badge {
+    padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+    &.active, &.on_time { background: $success-light; color: $success; }
+    &.inactive, &.absent { background: $danger-light; color: $danger; }
+    &.late { background: #fffbeb; color: $warning; }
+}
+
+// --- 4. HỆ THỐNG MODAL (MODAL SYSTEM) ---
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba($text-main, 0.4);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px;
+
+    .modal-content {
+        background: $white; width: 100%; max-width: 700px;
+        border-radius: $radius-lg; box-shadow: $shadow-lg;
+        animation: zoomIn 0.3s ease-out;
+
+        .modal-header {
+            padding: 20px 24px; border-bottom: 1px solid $border-color;
+            display: flex; justify-content: space-between; align-items: center;
+            h3 { margin: 0; font-size: 1.25rem; }
+            .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        }
+
+        form {
+            padding: 24px;
+            .form-grid {
+                display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+                .form-group {
+                    display: flex; flex-direction: column; gap: 6px;
+                    &.full-width { grid-column: span 2; }
+                    label { font-size: 0.85rem; font-weight: 600; }
+                    input, select, textarea {
+                        padding: 10px; border: 1px solid $border-color; border-radius: $radius-sm;
+                        &:focus { border-color: $primary; outline: none; }
+                    }
+                }
+            }
+        }
+
+        .modal-footer {
+            padding: 20px 24px; border-top: 1px solid $border-color;
+            display: flex; justify-content: flex-end; gap: 12px;
+            .btn-secondary { background: $bg-body; border: none; padding: 10px 20px; border-radius: $radius-sm; cursor: pointer; }
+        }
+    }
+}
+
+.stats-grid {
+    display: grid;
+    // Chia 4 cột đều nhau trên màn hình lớn, tự xuống dòng trên mobile
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+
+    .stat-card {
+        background: #ffffff;
+        padding: 24px;
+        border-radius: 20px; // Bo góc tròn hơn nhìn sẽ hiện đại hơn
+        border: 1px solid #f1f5f9;
         display: flex;
         align-items: center;
         gap: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
 
-        .admin-profile {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          
-          .avatar {
-            width: 38px;
-            height: 38px;
-            background: linear-gradient(135deg, $primary, #818cf8);
-            border-radius: 50%;
+        // Hiệu ứng Hover "bay lên"
+        &:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            border-color: rgba(79, 70, 229, 0.2); // Đổi màu viền nhẹ theo màu chủ đạo
+            
+            .stat-icon {
+                transform: scale(1.1) rotate(5deg); // Icon hơi xoay nhẹ khi hover
+            }
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 700;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
-          }
+            font-size: 1.6rem;
+            transition: all 0.4s ease;
 
-          .info {
-            display: flex;
-            flex-direction: column;
-            .name { font-weight: 600; font-size: 0.9rem; color: $text-main; }
-            .role { font-size: 0.75rem; color: $text-muted; }
-          }
+            // Màu sắc cho từng loại icon (Nền cực nhạt - Chữ đậm)
+            &.blue { 
+                background: #eff6ff; 
+                color: #2563eb;
+                box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.1); 
+            }
+            &.green { 
+                background: #ecfdf5; 
+                color: #059669; 
+                box-shadow: inset 0 0 0 1px rgba(5, 150, 105, 0.1);
+            }
+            &.orange { 
+                background: #fff7ed; 
+                color: #d97706; 
+                box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.1);
+            }
+            &.purple { 
+                background: #f5f3ff; 
+                color: #7c3aed; 
+                box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.1);
+            }
         }
 
-        .btn-logout-admin {
-          background: #fff1f2;
-          color: $danger;
-          border: 1px solid #fecaca;
-          padding: 8px 16px;
-          border-radius: 8px;
-          font-size: 0.85rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: $transition;
+        .stat-info {
+            .value {
+                display: block;
+                font-size: 1.8rem;
+                font-weight: 800;
+                color: #1e293b;
+                letter-spacing: -1px;
+                line-height: 1.2;
+            }
 
-          &:hover {
-            background: $danger;
-            color: white;
-          }
+            .label {
+                font-size: 0.9rem;
+                color: #64748b;
+                font-weight: 600;
+                letter-spacing: 0.2px;
+            }
         }
-      }
-    }
 
-    // Content Body
-    .admin-content-body {
-      padding: 32px;
-      overflow-y: auto;
+        // Tạo một đốm sáng mờ trang trí phía sau card (tùy chọn)
+        &::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            background: currentColor;
+            opacity: 0.03;
+            border-radius: 50%;
+        }
     }
-  }
 }
 
-// Stats Cards Grid
+// Animation xuất hiện mượt mà khi load trang
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
-
-  .stat-card {
-    background: white;
-    padding: 24px;
-    border-radius: 16px;
-    box-shadow: $shadow;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    border: 1px solid transparent;
-    transition: $transition;
-
-    &:hover {
-      border-color: $primary;
-      transform: translateY(-4px);
-    }
-
-    .stat-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      
-      &.blue { background: #eff6ff; color: #3b82f6; }
-      &.green { background: #ecfdf5; color: #10b981; }
-      &.orange { background: #fff7ed; color: #f59e0b; }
-      &.purple { background: #f5f3ff; color: #8b5cf6; }
-    }
-
-    .stat-info {
-      .value { font-size: 1.5rem; font-weight: 800; color: $text-main; display: block; }
-      .label { font-size: 0.85rem; color: $text-muted; font-weight: 500; }
-    }
-  }
+    animation: slideUpFade 0.6s ease-out;
 }
 
-.admin-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  padding: 24px;
-  margin-bottom: 24px;
-  border: 1px solid #f1f5f9;
-
-  .card-header-flex {
-    display: flex;
-    justify-content: space-between;
+.form-group.checkbox-inline-wrapper {
+    // Ép nằm ngang thay vì dọc (do .form-group mặc định là column)
+    flex-direction: row !important; 
     align-items: center;
-    margin-bottom: 20px;
-    
-    h3 { margin: 0; font-size: 1.1rem; font-weight: 700; color: #1e293b; }
-  }
+    height: 42px; // Chiều cao bằng với các ô input khác để thẳng hàng
+    margin-top: 10px;
+
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 10px; // Khoảng cách giữa ô checkbox và chữ
+        cursor: pointer;
+        user-select: none;
+        width: 100%;
+
+        input[type="checkbox"] {
+            // Kích thước ô vuông
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            // Đổi màu xanh theo tông hệ thống (Indigo)
+            accent-color: #4f46e5; 
+            margin: 0;
+        }
+
+        .label-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1;
+        }
+
+        &:hover .label-text {
+            color: #4f46e5; // Hiệu ứng khi di chuột vào chữ
+        }
+    }
 }
 
-// Table Style
-.custom-table {
-  width: 100%;
-  border-collapse: collapse;
-  
-  th {
-    background: #f8fafc;
-    padding: 12px 16px;
-    text-align: left;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    color: #64748b;
+.salary-table {
+    .count-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        font-weight: 700;
+        font-size: 0.8rem;
+
+        &.success { background: #ecfdf5; color: #10b981; border: 1px solid #d1fae5; }
+        &.warning { background: #fffbeb; color: #f59e0b; border: 1px solid #fef3c7; }
+        &.danger { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+    }
+
+    .final-salary {
+        font-weight: 800;
+        color: $primary;
+        font-size: 1rem;
+    }
+
+    .pos-tag {
+        background: #f1f5f9;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        color: #475569;
+    }
+}
+
+.text-danger {
+    color: #ef4444 !important;
     font-weight: 600;
-    border-bottom: 2px solid #f1f5f9;
-  }
-
-  td {
-    padding: 16px;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 0.9rem;
-    color: #334155;
-  }
-
-  tr:hover { background: #fcfdfe; }
 }
 
-// Badge Style
-.badge {
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  &.pending { background: #fff7ed; color: #c2410c; }
-  &.approved { background: #ecfdf5; color: #059669; }
-  &.rejected { background: #fef2f2; color: #dc2626; }
+// --- 5. ANIMATIONS & RESPONSIVE ---
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+@media (max-width: 1024px) {
+    .admin-sidebar { width: 80px; .admin-logo h2, .admin-logo span, .menu-label, .admin-menu-item span:not(.icon) { display: none; } }
+    .admin-main { max-width: calc(100% - 80px); }
 }
 
-// Search Bar
-.search-box {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  input {
-    flex-grow: 1;
-    padding: 10px 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    outline: none;
-    &:focus { border-color: #4f46e5; }
-  }
+@media (max-width: 768px) {
+    .filter-row { grid-template-columns: 1fr; }
+    .modal-content .form-grid { grid-template-columns: 1fr; }
 }

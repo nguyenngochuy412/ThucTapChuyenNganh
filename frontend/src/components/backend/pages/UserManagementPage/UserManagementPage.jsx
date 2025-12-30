@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useManagement } from '../../hooks/useManagement';
-import './UserManagementPage.scss';
 
 const INITIAL_FORM = {
     name: '', email: '', password: '', department_id: '',
@@ -130,11 +129,7 @@ const UserManagementPage = () => {
                                     <tr key={u.id}>
                                         <td>
                                             <div className="user-cell">
-                                                <div className="avatar-circle">{u.name.charAt(0)}</div>
-                                                <div className="user-info">
-                                                    <div className="name">{u.name}</div>
-                                                    <div className="email">{u.email}</div>
-                                                </div>
+                                                <div className="name">{u.name}</div>
                                             </div>
                                         </td>
                                         <td><span className="dept-tag">{u.department?.name}</span></td>

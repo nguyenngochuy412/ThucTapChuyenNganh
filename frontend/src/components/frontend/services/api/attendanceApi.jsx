@@ -43,6 +43,10 @@ const attendanceApi = {
         } catch (error) {
             throw error.response?.data || new Error('Lỗi khi lấy lịch sử');
         }
+    },
+
+    getSalaryReport: (params) => {
+        return api.get('/admin/attendance/salary-report', { params });
     }
 };
 

@@ -8,22 +8,23 @@ const AdminLayout = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Hàm lấy title dựa trên route
+    // 1. Cập nhật tiêu đề hiển thị cho 2 trang mới
     const getPageTitle = () => {
         const path = location.pathname;
         if (path.includes('dashboard')) return 'Tổng quan hệ thống';
         if (path.includes('users')) return 'Quản lý nhân viên';
+        if (path.includes('departments')) return 'Quản lý phòng ban'; // Thêm mới
+        if (path.includes('attendance')) return 'Quản lý điểm danh';   // Thêm mới
         return 'Admin Panel';
     };
 
-     const handleLogout = () => {
+    const handleLogout = () => {
         if (window.confirm("Hệ thống Admin: Bạn có chắc muốn đăng xuất?")) {
-        logout();
+            logout();
         }
     };
 
     const goToProfile = () => {
-        // Admin có thể dùng chung trang profile với user hoặc trang riêng
         navigate('/user/profile'); 
     };
 
@@ -41,12 +42,22 @@ const AdminLayout = () => {
                     <NavLink to="/admin/dashboard" className={({ isActive }) => isActive ? "admin-menu-item active" : "admin-menu-item"}>
                         <span className="icon">📊</span> Dashboard
                     </NavLink>
+                    
+                    {/* Thêm menu Phòng ban */}
+                    <NavLink to="/admin/departments" className={({ isActive }) => isActive ? "admin-menu-item active" : "admin-menu-item"}>
+                        <span className="icon">🏢</span> Phòng ban
+                    </NavLink>
+
                     <NavLink to="/admin/users" className={({ isActive }) => isActive ? "admin-menu-item active" : "admin-menu-item"}>
                         <span className="icon">👥</span> Nhân viên
                     </NavLink>
                     
                     <p className="menu-label" style={{ marginTop: '20px' }}>Operations</p>
                     
+                    {/* Thêm menu Chấm công */}
+                    <NavLink to="/admin/attendance" className={({ isActive }) => isActive ? "admin-menu-item active" : "admin-menu-item"}>
+                        <span className="icon">📅</span> Chấm công
+                    </NavLink>
                 </nav>
             </aside>
 
@@ -64,7 +75,7 @@ const AdminLayout = () => {
                             </div>
                             <div className="info">
                                 <span className="name">{user?.name || 'Admin'}</span>
-                                <span className="role">{user?.role == 'admin'?'Administrator':''}</span>
+                                <span className="role">{user?.role === 'admin' ? 'Administrator' : ''}</span>
                             </div>
                         </div>
                         <button className="btn-logout-admin" onClick={handleLogout}>
