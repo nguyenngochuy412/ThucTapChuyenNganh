@@ -68,4 +68,5 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
             Route::delete('{id}', [DepartmentController::class, 'destroy']); // Xóa (Thay cho delete)
         });
     });
+
 });

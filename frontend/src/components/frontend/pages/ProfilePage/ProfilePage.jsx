@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import Header from '../../main/Header';
 import SideBar from '../../main/SideBar';
 import './ProfilePage.scss';
@@ -14,10 +14,16 @@ const ProfilePage = () => {
     const [showPassModal, setShowPassModal] = useState(false);
     const [editData, setEditData] = useState({ name: '', phone: '', address: '', birth_date: '' });
     const [passData, setPassData] = useState({ current_password: '', new_password: '', new_password_confirmation: '' });
+    const [avatarPreview, setAvatarPreview] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         fetchProfile();
     }, [user?.id, fetchProfile]);
+
+    useEffect(() => {
+        setAvatarPreview(null);
+    }, [profileData?.avatar]);
 
     // Hàm hỗ trợ hiển thị ngày dd/mm/yyyy
     const formatDateDisplay = (dateStr) => {
@@ -43,8 +49,14 @@ const ProfilePage = () => {
     };
 
     const handleUpdate = async () => {
-        await updateProfile(editData);
-        setIsEditing(false);
+        try {
+            await updateProfile(editData);
+            setIsEditing(false);
+            setAvatarPreview(null);
+            toast.success('Cập nhật thông tin thành công!');
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Cập nhật thất bại');
+        }
     };
 
     const handleChangePass = async (e) => {
@@ -52,11 +64,14 @@ const ProfilePage = () => {
         if (passData.new_password !== passData.new_password_confirmation) {
             return toast.error("Mật khẩu xác nhận không khớp!");
         }
+
         try {
             await changePassword(passData);
             setShowPassModal(false);
             setPassData({ current_password: '', new_password: '', new_password_confirmation: '' });
-        } catch (err) {}
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Lỗi khi đổi mật khẩu");
+        }
     };
 
     const handleAvatarChange = async (e) => {
@@ -68,10 +83,53 @@ const ProfilePage = () => {
             };
             reader.readAsDataURL(file);
         }
+        try {
+            setIsUploading(true);
+            const base64 = await fileToBase64(file);
+            await updateProfile({ avatar: base64 });
+            toast.success('Cập nhật avatar thành công!');
+        } catch (error) {
+            setAvatarPreview(null);
+            toast.error('Cập nhật avatar thất bại!');
+        } finally {
+            setIsUploading(false);
+        }
     };
 
-    const userAvatar = profileData?.avatar ? `http://localhost:8000/storage/${profileData.avatar}` : null;
-    const defaultAvatar = `https://ui-avatars.com/api/?name=${profileData?.name || 'User'}&background=4361ee&color=fff&size=128`;
+    const fileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataJSON(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    };
+
+    // Xác định avatar URL
+    const getAvatarUrl = useCallback(() => {
+        // Ưu tiên preview khi đang upload
+        if (avatarPreview) return avatarPreview;
+        
+        // Nếu có avatar trong database
+        if (profileData?.avatar) {
+            // Nếu là URL đầy đủ (từ default avatar)
+            if (profileData.avatar.startsWith('http')) {
+                return profileData.avatar;
+            }
+            // Nếu là path relative (từ storage)
+            return `http://localhost:8000/storage/${profileData.avatar}`;
+        }
+        
+        // Default avatar từ UI Avatars
+        const name = encodeURIComponent(profileData?.name || 'User');
+        return `https://ui-avatars.com/api/?name=${name}&background=4361ee&color=fff&size=128`;
+    }, [avatarPreview, profileData]);
+
+    // Xử lý lỗi load ảnh
+    const handleImageError = (e) => {
+        const name = encodeURIComponent(profileData?.name || 'User');
+        e.target.src = `https://ui-avatars.com/api/?name=${name}&background=4361ee&color=fff&size=128`;
+    };
 
     return (
         <div className="profile-page-container">
@@ -85,10 +143,25 @@ const ProfilePage = () => {
                         <div className="identity-card animate-fadeIn">
                             <div className="avatar-section">
                                 <div className="avatar-wrapper">
-                                    <img src={userAvatar || defaultAvatar} alt="Avatar" />
-                                    <input type="file" id="avatar-upload" hidden onChange={handleAvatarChange} accept="image/*" />
-                                    <label htmlFor="avatar-upload" className="btn-edit-avatar">
-                                        <i className="fas fa-camera"></i>
+                                    <img 
+                                        src={getAvatarUrl()} 
+                                        alt="Avatar" 
+                                        onError={handleImageError}
+                                        className={isUploading ? 'uploading' : ''}
+                                    />
+                                    <input 
+                                        type="file" 
+                                        id="avatar-upload" 
+                                        hidden 
+                                        onChange={handleAvatarChange} 
+                                        accept="image/jpeg,image/png,image/gif"
+                                        disabled={isUploading}
+                                    />
+                                    <label 
+                                        htmlFor="avatar-upload" 
+                                        className={`btn-edit-avatar ${isUploading ? 'disabled' : ''}`}
+                                    >
+                                        <i className={`fas ${isUploading ? 'fa-spinner fa-spin' : 'fa-camera'}`}></i>
                                     </label>
                                 </div>
                                 <h2>{profileData?.name || 'Đang tải...'}</h2>

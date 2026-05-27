@@ -6,15 +6,24 @@ use App\Exports\SalaryExport;
 use App\Http\Controllers\Controller;
 use App\Models\Attendances;
 use App\Models\User;
+use App\Services\FaceRecognitionService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str as SupportStr;
 use Maatwebsite\Excel\Excel;
 
 class AttendanceController extends Controller
 {
+    protected $faceService;
+
+    public function __construct(FaceRecognitionService $faceService)
+    {
+        $this->faceService = $faceService;
+    }
+
     // Hàm hỗ trợ lưu ảnh Base64
     private function saveBase64Image($base64String, $folder)
     {
@@ -78,6 +87,46 @@ class AttendanceController extends Controller
 
         $user = $request->user();
         $department = $user->department;
+
+            // KIỂM TRA KHUÔN MẶT
+        if (!$user->avatar) {
+            return response()->json([
+                'message' => 'Bạn chưa cập nhật ảnh đại diện!'
+            ], 400);
+        }
+
+        try {
+            $result = $this->faceService->verifyWithBase64(
+                $request->imageData,
+                $user->avatar
+            );
+
+            if (!$result['success']) {
+                return response()->json([
+                    'message' => 'Lỗi xác thực: ' . ($result['message'] ?? 'Không thể xử lý ảnh')
+                ], 500);
+            }
+
+            if (!$result['is_match']) {
+                // Sử dụng similarity thay vì confidence
+                $similarity = round($result['similarity'] * 100, 2);
+                return response()->json([
+                    'message' => "Khuôn mặt không khớp với avatar (độ chính xác: {$similarity}%)"
+                ], 403);
+            }
+
+            // Log thành công - sử dụng similarity
+            Log::info('Face verification passed', [
+                'user_id' => $user->id,
+                'similarity' => $result['similarity']
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Face verification error: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Lỗi xác thực khuôn mặt: ' . $e->getMessage()
+            ], 500);
+        }
 
         // 2. Lấy tọa độ từ 2 cột riêng biệt trong bảng departments
         $officeLat = $department->latitude;
@@ -153,6 +202,46 @@ class AttendanceController extends Controller
         $user = $request->user();
         $today = Carbon::today()->toDateString();
         $now = Carbon::now();
+
+        // KIỂM TRA KHUÔN MẶT
+        if (!$user->avatar) {
+            return response()->json([
+                'message' => 'Bạn chưa cập nhật ảnh đại diện!'
+            ], 400);
+        }
+
+        try {
+            $result = $this->faceService->verifyWithBase64(
+                $request->imageData,
+                $user->avatar
+            );
+
+            if (!$result['success']) {
+                return response()->json([
+                    'message' => 'Lỗi xác thực: ' . ($result['message'] ?? 'Không thể xử lý ảnh')
+                ], 500);
+            }
+
+            if (!$result['is_match']) {
+                // Sử dụng similarity thay vì confidence
+                $similarity = round($result['similarity'] * 100, 2);
+                return response()->json([
+                    'message' => "Khuôn mặt không khớp với avatar (độ chính xác: {$similarity}%)"
+                ], 403);
+            }
+
+            // Log thành công - sử dụng similarity
+            Log::info('Face verification passed', [
+                'user_id' => $user->id,
+                'similarity' => $result['similarity']
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Face verification error: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Lỗi xác thực khuôn mặt: ' . $e->getMessage()
+            ], 500);
+        }
 
         // 2. Kiểm tra bản ghi điểm danh hôm nay
         $attendance = Attendances::where('user_id', $user->id)
@@ -319,13 +408,13 @@ class AttendanceController extends Controller
         return response()->json($report);
     }
 
-    public function exportSalaryExcel(Request $request) 
-    {
-        // Lấy dữ liệu báo cáo (Dùng chung logic với hàm hiển thị)
-        $reportData = $this->getSalaryReport($request)->original; 
+    // public function exportSalaryExcel(Request $request) 
+    // {
+    //     // Lấy dữ liệu báo cáo (Dùng chung logic với hàm hiển thị)
+    //     $reportData = $this->getSalaryReport($request)->original; 
         
-        $fileName = 'Bang_Luong_' . date('m_Y') . '.xlsx';
+    //     $fileName = 'Bang_Luong_' . date('m_Y') . '.xlsx';
         
-        return Excel::download(new SalaryExport($reportData), $fileName);
-    }
+    //     return Excel::download(new SalaryExport($reportData), $fileName);
+    // }
 }

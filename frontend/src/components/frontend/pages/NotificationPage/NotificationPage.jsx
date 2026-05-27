@@ -110,6 +110,11 @@ const NotificationPage = () => {
         }
         createNotification(newNotif);
         setShowCreateModal(false);
+        setNewNotif({
+            title: '',
+            type: 'info',
+            content: ''
+        })
     };
 
     const handleAction = async (requestId, status) => {
@@ -122,9 +127,6 @@ const NotificationPage = () => {
             
             // 2. Thông báo cho người dùng
             toast.success(status === 'approved' ? "Đã phê duyệt đơn!" : "Đã từ chối đơn!");
-            
-            // Lưu ý: Trong custom hook useNotifications, hàm updateRequestStatus 
-            // nên thực hiện lọc bỏ requestId ra khỏi userReceivers để UI cập nhật ngay.
         } catch (error) {
             toast.error("Thao tác thất bại!");
         } finally {
@@ -200,9 +202,9 @@ const NotificationPage = () => {
                                                             <h4>
                                                                 {item.itemType === 'system' ? (
                                                                     // HIỂN THỊ CHO THÔNG BÁO HỆ THỐNG
-                                                                    <>{item.title} <span>• {item.sender?.name || 'Hệ thống'}</span></>
+                                                                    <>{item.title} <span>• {item.sender?.name === user?.name ? "Tôi" : "Hệ thống"}</span></>
                                                                 ) : (
-                                                                    // HIỂN THỊ CHO KẾT QUẢ ĐƠN TỪ
+                                                                    // HIỂN THỊ CHO KẾT QUẢ ĐƠN TỪ      
                                                                     <>
                                                                         <span className="req-cate">[{item.category?.name}]</span> Kết quả đơn từ 
                                                                         <span className={`status-text ${item.status}`}>
